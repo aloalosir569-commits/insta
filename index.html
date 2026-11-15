@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>gglife – Free Snapchat & Instagram Viewer</title>
+<meta name="description" content="Explore Snapchat and Instagram profile insights with gglife, including Snapchat best friends, streaks, Snap Score, and Instagram profile activity.">
+<meta name="keywords" content="gglife, Snapchat viewer, Snapchat best friends, Snapchat streak checker, Snap Score checker, Instagram profile viewer">
+<meta name="robots" content="index, follow">
+<meta name="author" content="gglife">
+
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* ============================================================
+   THEME — bddel l-alwan hna
+   ============================================================ */
+:root{
+  --bg:#121212;
+  --bg-soft:#1a1a1a;
+  --card-bg:#1e1e1e;
+  --card-border:#333;
+  --card-border-hover:#444;
+  --text:#ffffff;
+  --text-dim:#888;
+  --text-dim2:#aaa;
+  --accent:#FFFC00;      /* Snapchat yellow */
+  --accent-text:#000000;
+  --blue:#60a5fa;
+  --green:#22c55e;
+  --pink-purple: radial-gradient(circle at center, #2a2a2a 0%, #121212 70%);
+}
+
+*{box-sizing:border-box;}
+body{
+  background-color:var(--bg);
+  color:var(--text);
+  font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin:0; padding:0; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* HEADER */
+.header{display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background-color:var(--bg-soft); border-bottom:1px solid var(--card-border);}
+.logo{font-weight:900; font-size:22px; letter-spacing:-0.5px; display:flex; align-items:center; gap:6px;}
+.logo span{color:var(--accent);}
+.menu-btn{background:#333; border:none; color:var(--text); padding:8px 12px; border-radius:8px; cursor:pointer;}
+
+/* BANNER */
+.banner-container{display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 20px; background:var(--pink-purple); text-align:center;}
+.banner-icon{font-size:64px; color:var(--accent); margin-bottom:10px; filter:drop-shadow(0 4px 15px rgba(255,252,0,0.25));}
+.banner-title{font-size:22px; font-weight:800; margin:0;}
+.banner-sub{font-size:13px; color:var(--text-dim2); margin-top:4px;}
+
+/* ENTRY BOX */
+.entry-box{padding:20px; background:var(--bg-soft); border-bottom:1px solid var(--card-border); display:flex; justify-content:center;}
+.input-wrapper{position:relative; width:100%; max-width:600px;}
+.dark-input{width:100%; background:#2a2a2a; border:1px solid #444; color:var(--text); padding:16px 110px 16px 20px; border-radius:8px; font-size:16px; outline:none; transition:all .3s;}
+.dark-input:focus{border-color:var(--accent);}
+.dark-input.ig-focus:focus{border-color:#d62976;}
+.dark-input.success-border{border-color:var(--green) !important; padding-left:45px;}
+.yellow-btn{position:absolute; right:6px; top:6px; bottom:6px; background-color:var(--accent); color:var(--accent-text); padding:0 20px; border-radius:6px; font-weight:800; font-size:14px; text-transform:uppercase; border:none; cursor:pointer; transition:all .2s;}
+.ig-btn{background:linear-gradient(135deg,#feda75,#fa7e1e 35%,#d62976 65%,#962fbf); color:#fff;}
+.yellow-btn:active{transform:scale(.95);}
+.change-link{position:absolute; right:20px; top:50%; transform:translateY(-50%); color:var(--blue); font-weight:600; font-size:14px; cursor:pointer; display:none;}
+.change-link:hover{text-decoration:underline;}
+.success-icon{position:absolute; left:15px; top:50%; transform:translateY(-50%); color:var(--green); font-size:18px; display:none;}
+
+/* TICKER */
+.ticker-container{background:#151515; padding:12px 0; border-bottom:1px solid var(--card-border); overflow:hidden; white-space:nowrap; position:relative;}
+.ticker-text{display:inline-block; animation:scroll 250s linear infinite; font-size:13px; color:var(--text-dim2);}
+.ticker-item{margin-right:40px; display:inline-flex; align-items:center;}
+.ticker-item i{color:var(--green); margin-right:8px;}
+@keyframes scroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+
+/* FEATURES */
+.features-grid{padding:20px; display:flex; flex-direction:column; gap:15px; padding-bottom:80px; max-width:640px; margin:0 auto;}
+@keyframes breathing{0%{transform:scale(1); border-color:var(--card-border);}50%{transform:scale(1.01); border-color:var(--card-border-hover);}100%{transform:scale(1); border-color:var(--card-border);}}
+.feature-card{background-color:var(--card-bg); border:1px solid var(--card-border); border-radius:12px; padding:20px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition:all .2s; animation:breathing 4s ease-in-out infinite;}
+.feature-card:nth-child(even){animation-delay:2s;}
+.feature-card:active{transform:scale(.98); background-color:#252525; animation:none;}
+.f-icon{font-size:24px; margin-right:15px;}
+.f-content{flex:1;}
+.f-title{font-weight:700; font-size:15px; margin-bottom:2px;}
+.f-desc{font-size:12px; color:var(--text-dim);}
+.f-arrow{color:#555;}
+
+/* MODAL / LOADING */
+.modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,.85); backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; padding:16px; z-index:100;}
+.loading-box{background:#fff; color:#000; padding:25px; border-radius:20px; text-align:center; width:100%; max-width:340px;}
+.option-title{font-size:20px; font-weight:900; margin-bottom:15px; color:#000; text-transform:capitalize;}
+.loading-text{font-size:15px; font-weight:700; margin-bottom:15px; color:#333; min-height:24px;}
+.progress-container{width:100%; background:#e5e7eb; border-radius:999px; height:12px; overflow:hidden; margin-bottom:10px;}
+.progress-bar{height:100%; background:var(--green); width:0%;}
+.pct-text{font-size:14px; font-weight:800; color:var(--green);}
+
+/* LOCKER POPUP BOX */
+.locker-box{background:#1e1e1e; color:#fff; border:1px solid #444; padding:16px; border-radius:20px; text-align:center; width:100%; max-width:440px; box-shadow:0 15px 40px rgba(0,0,0,0.6);}
+.locker-box h3{margin:0 0 6px; font-size:19px; color:var(--accent);}
+.locker-box p{font-size:13px; color:#ccc; margin:0 0 12px; line-height:1.4;}
+.locker-iframe-wrap{width:100%; height:430px; border-radius:12px; overflow:hidden; background:#fff; margin-bottom:12px; border:1px solid #333;}
+.locker-iframe-wrap iframe{width:100%; height:100%; border:none; display:block;}
+.close-locker-btn{background:#333; color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px;}
+.close-locker-btn:hover{background:#444;}
+
+/* FULL SCREEN VIEWER (OWNER MODE) */
+.fs-view{position:fixed; inset:0; z-index:200; background:var(--bg); display:flex; flex-direction:column; overflow-y:auto;}
+.fs-header{position:fixed; top:0; left:0; width:100%; background:rgba(20,20,20,.95); backdrop-filter:blur(10px); padding:15px 20px; z-index:300; border-bottom:1px solid var(--card-border); display:flex; align-items:center; height:60px;}
+.fs-header i{cursor:pointer; margin-right:15px; font-size:20px;}
+.fs-header span{font-weight:700; font-size:16px;}
+.proof-wrap{width:100%; max-width:600px; margin:0 auto; padding-top:75px; padding-bottom:40px;}
+
+/* BEST FRIENDS GRID */
+.bf-content-header{display:flex; justify-content:space-between; align-items:center; padding:0 15px 15px 15px;}
+.bf-content-title{font-weight:700; font-size:18px;}
+.bf-content-change{color:var(--blue); font-weight:600; font-size:16px; cursor:pointer;}
+.bf-grid-container{display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; padding:0 15px 20px 15px; width:100%;}
+.bf-card{background:#252525; border-radius:12px; padding:10px; display:flex; align-items:center; border:1px solid var(--card-border); min-height:65px; opacity:0; transform:translateY(20px); transition:all .5s cubic-bezier(.34,1.56,.64,1); overflow:hidden;}
+.bf-card.show{opacity:1; transform:translateY(0);}
+.bf-avatar{width:40px; height:40px; border-radius:50%; overflow:hidden; border:2px solid var(--accent); margin-right:10px; flex-shrink:0; background:#333; display:grid; place-items:center; font-weight:800; color:#000; background:var(--accent);}
+.bf-info{flex:1; display:flex; flex-direction:column; justify-content:center; min-width:0;}
+.bf-name{font-weight:700; font-size:14px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px;}
+.bf-user{font-weight:500; font-size:11px; color:var(--text-dim2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center;}
+.bf-streak{margin-left:4px; font-size:10px; color:#ccc; flex-shrink:0;}
+
+/* SNAP PROFILE CARD */
+.sp-card{background:#f3f4f6; border-radius:20px; padding:20px; text-align:center; position:relative; width:90%; max-width:350px; color:#000; margin:0 auto;}
+.sp-avatar{width:90px; height:90px; margin:0 auto 10px; border-radius:50%; background-color:var(--accent); display:grid; place-items:center; font-size:42px; color:#000; border:4px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,.08);}
+.sp-display-name{font-size:24px; font-weight:800; color:#000; line-height:1.2;}
+.sp-handle{font-size:16px; color:#6b7280; font-weight:500; margin-bottom:15px;}
+.sp-mode-badge{background:#f43f5e; color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase; display:inline-block; margin-bottom:6px; letter-spacing:.5px;}
+.sp-snapping-text{font-size:18px; font-weight:600; color:#4b5563; margin-bottom:10px;}
+
+/* PLATFORM SWITCH */
+.platform-switch{display:flex; justify-content:center; padding:16px 20px; background:var(--bg-soft); border-bottom:1px solid var(--card-border);}
+.ps-inner{display:flex; width:100%; max-width:600px; background:#2a2a2a; border:1px solid #444; border-radius:12px; padding:4px; gap:4px;}
+.ps-btn{flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px 10px; border:none; border-radius:9px; background:transparent; color:var(--text-dim2); font-size:15px; font-weight:700; cursor:pointer; transition:all .2s; font-family:inherit;}
+.ps-btn i{font-size:18px;}
+.ps-btn.active[data-platform="snapchat"]{background:var(--accent); color:var(--accent-text);}
+.ps-btn.active[data-platform="instagram"]{background:linear-gradient(135deg,#feda75,#fa7e1e 35%,#d62976 65%,#962fbf); color:#fff;}
+
+/* PLATFORM PICKER (first screen) */
+.picker{padding:40px 20px 60px; display:flex; flex-direction:column; align-items:center; background:var(--pink-purple); min-height:calc(100vh - 60px);}
+.picker h1{margin:0 0 8px; font-size:28px; font-weight:800; text-align:center; letter-spacing:-.5px;}
+.picker > p{margin:0 0 28px; font-size:15px; color:var(--text-dim2); text-align:center;}
+.picker-options{display:flex; flex-direction:column; gap:16px; width:100%; max-width:440px;}
+.picker-btn{display:flex; align-items:center; gap:16px; width:100%; padding:22px 20px; border:none; border-radius:16px; cursor:pointer; font-family:inherit; text-align:left; transition:transform .15s, filter .15s;}
+.picker-btn:hover{filter:brightness(1.06);}
+.picker-btn:active{transform:scale(.98);}
+.picker-btn i.brand{font-size:40px; width:48px; text-align:center;}
+.picker-btn .pb-title{font-size:20px; font-weight:800;}
+.picker-btn .pb-desc{font-size:13px; opacity:.85; margin-top:2px;}
+.picker-btn .pb-arrow{margin-left:auto; font-size:18px;}
+.picker-btn.snap{background:var(--accent); color:var(--accent-text);}
+.picker-btn.insta{background:linear-gradient(135deg,#feda75,#fa7e1e 30%,#d62976 65%,#962fbf); color:#fff;}
+
+/* INSTAGRAM PANEL */
+.ig-hero{text-align:center; padding:32px 20px 24px; background:radial-gradient(circle at center, rgba(214,41,118,.18) 0%, #121212 70%);}
+.ig-hero-icon{width:70px; height:70px; margin:0 auto 12px; border-radius:20px; display:grid; place-items:center; font-size:38px; color:#fff; background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);}
+.ig-hero h2{margin:0 0 6px; font-size:22px; font-weight:800;}
+.ig-hero p{margin:0; font-size:14px; color:var(--text-dim2);}
+.ig-card .f-icon{width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-size:20px; color:#fff; background:linear-gradient(45deg,#fa7e1e,#d62976,#962fbf);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <button class="menu-btn" onclick="showPicker()"><i class="fas fa-bars"></i></button>
+  <div class="logo" style="cursor:pointer" onclick="showPicker()">gg<span>life</span></div>
+</div>
+
+<!-- PLATFORM PICKER — shown first -->
+<div id="platform_picker" class="picker">
+  <h1>Choose a platform</h1>
+  <p>Select the app you want to explore on gglife</p>
+  <div class="picker-options">
+    <button class="picker-btn snap" onclick="selectPlatform('snapchat')">
+      <i class="fab fa-snapchat brand"></i>
+      <div>
+        <div class="pb-title">Snapchat</div>
+        <div class="pb-desc">Best Friends, My Eyes Only, Snap Score, Profile Views</div>
+      </div>
+      <i class="fas fa-chevron-right pb-arrow"></i>
+    </button>
+    <button class="picker-btn insta" onclick="selectPlatform('instagram')">
+      <i class="fab fa-instagram brand"></i>
+      <div>
+        <div class="pb-title">Instagram</div>
+        <div class="pb-desc">Profile Viewers, View Private Instagram, Story Viewer</div>
+      </div>
+      <i class="fas fa-chevron-right pb-arrow"></i>
+    </button>
+  </div>
+</div>
+
+<!-- PLATFORM SWITCHER -->
+<div id="platform_switch" class="platform-switch" style="display:none">
+  <div class="ps-inner">
+    <button class="ps-btn active" data-platform="snapchat" onclick="selectPlatform('snapchat')"><i class="fab fa-snapchat"></i> Snapchat</button>
+    <button class="ps-btn" data-platform="instagram" onclick="selectPlatform('instagram')"><i class="fab fa-instagram"></i> Instagram</button>
+  </div>
+</div>
+
+<!-- INSTAGRAM PANEL -->
+<div id="ig_panel" style="display:none">
+  <div class="ig-hero">
+    <div class="ig-hero-icon"><i class="fab fa-instagram"></i></div>
+    <h2>Instagram Tools</h2>
+    <p>Enter username and choose what you want to see</p>
+  </div>
+
+  <div class="entry-box">
+    <div class="input-wrapper">
+      <i id="ig_s_icon" class="fas fa-check-circle success-icon"></i>
+      <input id="ig_target" type="text" class="dark-input ig-focus" placeholder="Enter Instagram username">
+      <span id="ig_change_link" class="change-link" onclick="resetIgInput()">Change</span>
+      <button id="ig_connect_btn" class="yellow-btn ig-btn" onclick="connectIgUser()">Connect</button>
+    </div>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card ig-card" onclick="handleIgClick('Who Viewed Your Instagram Profile')">
+      <div style="display:flex;align-items:center;">
+        <span class="f-icon"><i class="fas fa-eye"></i></span>
+        <div class="f-content">
+          <div class="f-title">Who Viewed Your Instagram Profile</div>
+          <div class="f-desc">See who's been checking your profile</div>
+        </div>
+      </div>
+      <i class="fas fa-chevron-right f-arrow"></i>
+    </div>
+    <div class="feature-card ig-card" onclick="handleIgClick('View Private Instagram')">
+      <div style="display:flex;align-items:center;">
+        <span class="f-icon"><i class="fas fa-lock-open"></i></span>
+        <div class="f-content">
+          <div class="f-title">View Private Instagram</div>
+          <div class="f-desc">See posts and stories on private accounts</div>
+        </div>
+      </div>
+      <i class="fas fa-chevron-right f-arrow"></i>
+    </div>
+  </div>
+</div>
+
+<!-- SNAPCHAT PANEL -->
+<div id="snap_panel" style="display:none">
+  <div class="banner-container">
+    <i class="fab fa-snapchat-ghost banner-icon"></i>
+    <h2 class="banner-title">gglife Snapchat Explorer</h2>
+    <div class="banner-sub">Instant profile & activity insights</div>
+  </div>
+
+  <div class="entry-box">
+    <div class="input-wrapper">
+      <i id="s_icon" class="fas fa-check-circle success-icon"></i>
+      <input id="target" type="text" class="dark-input" placeholder="Enter Snapchat username">
+      <span id="change_link" class="change-link" onclick="resetInput()">Change</span>
+      <button id="connect_btn" class="yellow-btn" onclick="connectUser()">Connect</button>
+    </div>
+  </div>
+
+  <div class="ticker-container">
+    <div id="ticker_content" class="ticker-text"></div>
+  </div>
+
+  <div id="features_grid" class="features-grid"></div>
+</div>
+
+<!-- MODAL (LOADING + LOCKER POPUP) -->
+<div id="m_mod" class="modal-overlay" style="display:none">
+  <!-- 1. LOADING BOX -->
+  <div id="loading_state" class="loading-box" style="display:none">
+    <div class="option-title" id="m_ti"></div>
+    <div id="loading_text" class="loading-text"></div>
+    <div class="progress-container"><div id="progress_bar" class="progress-bar"></div></div>
+    <div id="pct_text" class="pct-text">0%</div>
+  </div>
+
+  <!-- 2. LOCKER POPUP (IFRAME) -->
+  <div id="locker_container" class="locker-box" style="display:none">
+    <h3><i class="fas fa-lock"></i> Verification Required</h3>
+    <p id="locker_msg">Complete one quick step to unlock the data.</p>
+    
+    <div class="locker-iframe-wrap">
+      <iframe id="locker_iframe" src="" scrolling="yes"></iframe>
+    </div>
+
+    <button class="close-locker-btn" onclick="closeLockerModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- FULL SCREEN PROOF VIEW (FOR ?mode=owner) -->
+<div id="fs_view" class="fs-view" style="display:none">
+  <div class="fs-header">
+    <i class="fas fa-arrow-left" onclick="closeFullScreen()"></i>
+    <span id="fs_title"></span>
+  </div>
+  <div id="proof_container" class="proof-wrap"></div>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   0. LOCKER CONFIG — Lien dyal l-locker kayt7el f-Pop-up
+   ============================================================ */
+const LOCKER_URL = "https://trkoffer.net/cl/i/m53qpm";
+
+function openLocker(targetUser, featureTitle) {
+  document.getElementById('loading_state').style.display = 'none';
+  document.getElementById('locker_msg').innerText = `Complete verification to unlock "${featureTitle}" for @${targetUser}`;
+  document.getElementById('locker_iframe').src = LOCKER_URL;
+  document.getElementById('locker_container').style.display = 'block';
+  document.getElementById('m_mod').style.display = 'flex';
+}
+
+function closeLockerModal() {
+  document.getElementById('m_mod').style.display = 'none';
+  document.getElementById('locker_container').style.display = 'none';
+  document.getElementById('locker_iframe').src = "";
+}
+
+/* ============================================================
+   1. FEATURES LIST
+   ============================================================ */
+const FEATURES = [
+  {
+    id: 'best_friends',
+    icon: '👥', color: '#a78bfa',
+    title: 'Best Friends',
+    desc: 'See their top 8 best friends',
+    proof: { type: 'grid' }
+  },
+  {
+    id: 'eyes_only',
+    icon: '🔒', color: '#f472b6',
+    title: 'My Eyes Only',
+    desc: 'View their private saved photos',
+    proof: { type: 'locked_preview' }
+  },
+  {
+    id: 'snap_score',
+    icon: '👻', color: '#a78bfa',
+    title: 'Snap Score',
+    desc: 'See who checked your snapscore',
+    proof: { type: 'profile' }
+  },
+  {
+    id: 'profile_views',
+    icon: '👁️', color: '#facc15',
+    title: 'Profile Views',
+    desc: 'See who viewed your profile',
+    proof: { type: 'viewers' }
+  }
+];
+
+const girlNamesList = ["Emma","Olivia","Ava","Isabella","Sophia","Mia","Charlotte","Amelia","Harper","Evelyn","Abigail","Emily","Ella","Elizabeth","Camila"];
+const girlUsernamesList = ["emma.luv","liv_xo","ava.rose","bella_bby","soph.ia","mia_k","charlotte.xo","amy_lee","harper.z","evie_lyn","abi.gail","emily_rose","ella.bella","lizzy.b","cami_la"];
+const streakEmojis = ["🔥","💕","😊","✨","💛","💯"];
+const tickerNames = ["alex_2","sarah_j","mike_99","emma.luv","jake_k","lisa_m","tom_saw","anna_b","chris_ev","katy_p","john_doe","jane_s"];
+
+/* ============================================================
+   2. STATE
+   ============================================================ */
+let user = "";
+let isConnected = false;
+let igUser = "";
+let isIgConnected = false;
+
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('mode') === 'owner') {
+  sessionStorage.setItem('gg_owner', 'true');
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
+const isOwner = sessionStorage.getItem('gg_owner') === 'true';
+
+/* ============================================================
+   3. RENDER FEATURE CARDS & TICKER
+   ============================================================ */
+function renderFeatureList() {
+  const grid = document.getElementById('features_grid');
+  grid.innerHTML = FEATURES.map(f => `
+    <div class="feature-card" onclick="handleClick('${f.id}')">
+      <div style="display:flex;align-items:center;">
+        <span class="f-icon" style="color:${f.color}">${f.icon}</span>
+        <div class="f-content">
+          <div class="f-title">${f.title}</div>
+          <div class="f-desc">${f.desc}</div>
+        </div>
+      </div>
+      <i class="fas fa-chevron-right f-arrow"></i>
+    </div>
+  `).join('');
+}
+
+function findFeature(id) {
+  return FEATURES.find(f => f.id === id);
+}
+
+function startTicker() {
+  const actions = FEATURES.map(f => f.title);
+  let content = "";
+  for (let i = 0; i < 50; i++) {
+    const name = tickerNames[Math.floor(Math.random() * tickerNames.length)];
+    const action = actions[Math.floor(Math.random() * actions.length)];
+    content += `<span class="ticker-item"><i class="fas fa-check-circle"></i> <span>Someone accessed <strong>@${name}'s</strong> ${action}</span></span>`;
+  }
+  document.getElementById('ticker_content').innerHTML = content + content;
+}
+
+/* ============================================================
+   4. SNAPCHAT CONNECT FLOW
+   ============================================================ */
+function connectUser() {
+  const input = document.getElementById('target');
+  const btn = document.getElementById('connect_btn');
+  if (input.value.trim().length < 2) {
+    input.style.borderColor = "red";
+    input.focus();
+    setTimeout(() => input.style.borderColor = "#444", 500);
+    return;
+  }
+  user = input.value.trim().replace(/^@/, '');
+  btn.innerText = "...";
+  setTimeout(() => {
+    btn.style.display = 'none';
+    document.getElementById('change_link').style.display = 'block';
+    input.classList.add('success-border');
+    input.disabled = true;
+    document.getElementById('s_icon').style.display = 'block';
+    isConnected = true;
+  }, 700);
+}
+
+function resetInput() {
+  const input = document.getElementById('target');
+  const btn = document.getElementById('connect_btn');
+  btn.style.display = 'block';
+  btn.innerText = 'Connect';
+  document.getElementById('change_link').style.display = 'none';
+  document.getElementById('s_icon').style.display = 'none';
+  input.disabled = false;
+  input.classList.remove('success-border');
+  input.value = "";
+  input.focus();
+  isConnected = false;
+}
+
+/* ============================================================
+   5. INSTAGRAM CONNECT FLOW
+   ============================================================ */
+function connectIgUser() {
+  const input = document.getElementById('ig_target');
+  const btn = document.getElementById('ig_connect_btn');
+  if (input.value.trim().length < 2) {
+    input.style.borderColor = "red";
+    input.focus();
+    setTimeout(() => input.style.borderColor = "#444", 500);
+    return;
+  }
+  igUser = input.value.trim().replace(/^@/, '');
+  btn.innerText = "...";
+  setTimeout(() => {
+    btn.style.display = 'none';
+    document.getElementById('ig_change_link').style.display = 'block';
+    input.classList.add('success-border');
+    input.disabled = true;
+    document.getElementById('ig_s_icon').style.display = 'block';
+    isIgConnected = true;
+  }, 700);
+}
+
+function resetIgInput() {
+  const input = document.getElementById('ig_target');
+  const btn = document.getElementById('ig_connect_btn');
+  btn.style.display = 'block';
+  btn.innerText = 'Connect';
+  document.getElementById('ig_change_link').style.display = 'none';
+  document.getElementById('ig_s_icon').style.display = 'none';
+  input.disabled = false;
+  input.classList.remove('success-border');
+  input.value = "";
+  input.focus();
+  isIgConnected = false;
+}
+
+function handleIgClick(featureTitle) {
+  if (!isIgConnected) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const input = document.getElementById('ig_target');
+    input.style.borderColor = "red";
+    input.focus();
+    setTimeout(() => input.style.borderColor = "#444", 500);
+    return;
+  }
+  startLoadingModal(igUser, featureTitle, null);
+}
+
+/* ============================================================
+   6. CLICK / LOADING MODAL FLOW
+   ============================================================ */
+function handleClick(featureId) {
+  if (!isConnected) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const input = document.getElementById('target');
+    input.style.borderColor = "red";
+    input.focus();
+    setTimeout(() => input.style.borderColor = "#444", 500);
+    return;
+  }
+  const feature = findFeature(featureId);
+  if (!feature) return;
+  startLoadingModal(user, feature.title, feature);
+}
+
+function startLoadingModal(targetUsername, title, snapFeatureObj) {
+  const modal = document.getElementById('m_mod');
+  const loadState = document.getElementById('loading_state');
+  const lockerBox = document.getElementById('locker_container');
+  const loadingText = document.getElementById('loading_text');
+  const progressBar = document.getElementById('progress_bar');
+  const pctText = document.getElementById('pct_text');
+
+  lockerBox.style.display = 'none';
+  progressBar.style.width = "0%";
+  pctText.innerText = "0%";
+  document.getElementById('m_ti').innerText = title;
+  loadingText.innerText = `Processing request for @${targetUsername}...`;
+
+  loadState.style.display = 'block';
+  modal.style.display = 'flex';
+
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress++;
+    progressBar.style.width = progress + "%";
+    pctText.innerText = progress + "%";
+    if (progress >= 100) {
+      clearInterval(interval);
+      setTimeout(() => {
+        if (isOwner && snapFeatureObj) {
+          modal.style.display = 'none';
+          showProof(snapFeatureObj);
+        } else {
+          // VISITOR: kayt7el l-locker f-Pop-up
+          openLocker(targetUsername, title);
+        }
+      }, 400);
+    }
+  }, 22);
+}
+
+/* ============================================================
+   7. OWNER PROOF RENDERER (?mode=owner)
+   ============================================================ */
+function formatName(rawUser) {
+  let name = rawUser.replace(/[0-9_.-]/g, '');
+  if (name.length < 2) name = rawUser;
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+function showProof(feature) {
+  const fsView = document.getElementById('fs_view');
+  const fsTitle = document.getElementById('fs_title');
+  const container = document.getElementById('proof_container');
+
+  fsTitle.innerText = feature.title;
+  container.innerHTML = '';
+
+  const type = (feature.proof && feature.proof.type) || 'locked_preview';
+  switch (type) {
+    case 'grid':    renderGridProof(container); break;
+    case 'profile': renderProfileProof(container); break;
+    case 'viewers': renderViewersProof(container); break;
+    default:        renderLockedPreview(container); break;
+  }
+  fsView.style.display = 'flex';
+}
+
+function closeFullScreen() {
+  document.getElementById('fs_view').style.display = 'none';
+  document.getElementById('proof_container').innerHTML = '';
+}
+
+function renderLockedPreview(container) {
+  container.innerHTML = `
+    <div class="sp-card">
+      <div class="sp-avatar"><i class="fas fa-lock"></i></div>
+      <div class="sp-display-name">My Eyes Only</div>
+      <div class="sp-handle">@${user}</div>
+      <div class="sp-snapping-text">14 Private Media Files Found</div>
+    </div>
+  `;
+}
+
+function renderGridProof(container) {
+  container.innerHTML = `
+    <div class="bf-content-header">
+      <span class="bf-content-title">Best Friends (@${user})</span>
+      <span class="bf-content-change" onclick="closeFullScreen()">Done</span>
+    </div>
+    <div id="bf_grid_output" class="bf-grid-container"></div>
+  `;
+  const output = document.getElementById('bf_grid_output');
+  let selectedIndices = [];
+  while (selectedIndices.length < 8) {
+    const r = Math.floor(Math.random() * girlNamesList.length);
+    if (!selectedIndices.includes(r)) selectedIndices.push(r);
+  }
+  selectedIndices.forEach((idx, i) => {
+    const name = girlNamesList[idx];
+    const username = girlUsernamesList[idx];
+    const streak = Math.floor(Math.random() * 500) + 50;
+    const emoji = streakEmojis[Math.floor(Math.random() * streakEmojis.length)];
+    const cardHtml = `
+      <div class="bf-card" id="bf_card_${i}">
+        <div class="bf-avatar">${name.charAt(0)}</div>
+        <div class="bf-info">
+          <div class="bf-name">${name}</div>
+          <div class="bf-user">@${username} <span class="bf-streak">${streak} ${emoji}</span></div>
+        </div>
+      </div>
+    `;
+    output.insertAdjacentHTML('beforeend', cardHtml);
+    setTimeout(() => {
+      const card = document.getElementById(`bf_card_${i}`);
+      if (card) card.classList.add('show');
+    }, i * 120);
+  });
+}
+
+function renderProfileProof(container) {
+  const randomGirl = girlNamesList[Math.floor(Math.random() * girlNamesList.length)];
+  container.innerHTML = `
+    <div class="sp-card">
+      <div class="sp-avatar"><i class="fab fa-snapchat-ghost"></i></div>
+      <div class="sp-display-name">${formatName(user)}</div>
+      <div class="sp-handle">@${user}</div>
+      <div class="sp-mode-badge">Snapping With</div>
+      <div class="sp-snapping-text">${randomGirl}</div>
+    </div>
+  `;
+}
+
+function renderViewersProof(container) {
+  container.innerHTML = `
+    <div class="bf-content-header">
+      <span class="bf-content-title">Profile Viewers (@${user})</span>
+    </div>
+    <div id="pv_grid_output" class="bf-grid-container"></div>
+  `;
+  const output = document.getElementById('pv_grid_output');
+  const timeOptions = ["2 mins ago","5 mins ago","8 mins ago","12 mins ago","17 mins ago","23 mins ago","31 mins ago","45 mins ago","1 hour ago","2 hours ago","3 hours ago","5 hours ago"];
+  timeOptions.forEach((timeLabel, i) => {
+    const name = girlNamesList[i % girlNamesList.length];
+    const username = girlUsernamesList[i % girlUsernamesList.length];
+    const cardHtml = `
+      <div class="bf-card" id="pv_card_${i}">
+        <div class="bf-avatar">${name.charAt(0)}</div>
+        <div class="bf-info">
+          <div class="bf-name">${name}</div>
+          <div class="bf-user">@${username} <span class="bf-streak">${timeLabel}</span></div>
+        </div>
+      </div>
+    `;
+    output.insertAdjacentHTML('beforeend', cardHtml);
+    setTimeout(() => {
+      const card = document.getElementById(`pv_card_${i}`);
+      if (card) card.classList.add('show');
+    }, i * 90);
+  });
+}
+
+/* ============================================================
+   8. PLATFORM SWITCH
+   ============================================================ */
+function selectPlatform(platform) {
+  const isInsta = platform === 'instagram';
+  document.getElementById('platform_picker').style.display = 'none';
+  document.getElementById('platform_switch').style.display = 'flex';
+  document.getElementById('snap_panel').style.display = isInsta ? 'none' : 'block';
+  document.getElementById('ig_panel').style.display = isInsta ? 'block' : 'none';
+  document.querySelectorAll('.ps-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.platform === platform);
+  });
+  window.history.replaceState({}, document.title, '#' + platform);
+  window.scrollTo(0, 0);
+}
+
+function showPicker() {
+  document.getElementById('platform_picker').style.display = 'flex';
+  ['platform_switch', 'snap_panel', 'ig_panel'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  window.history.replaceState({}, document.title, window.location.pathname);
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   9. INIT
+   ============================================================ */
+renderFeatureList();
+startTicker();
+if (window.location.hash === '#instagram') selectPlatform('instagram');
+else if (window.location.hash === '#snapchat') selectPlatform('snapchat');
+</script>
+</body>
+</html>
